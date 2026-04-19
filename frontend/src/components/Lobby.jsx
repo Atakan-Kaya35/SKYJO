@@ -125,7 +125,6 @@ export default function Lobby({ user, onGameStart, onLogout }) {
         <div className="lobby-header">
           <h2>🃏 {t.lobby}</h2>
           <div className="user-info">
-            <button className="btn-leaderboard" onClick={openLeaderboard}>{t.leaderboard}</button>
             <span>{t.playingAs} <strong>{user.username}</strong></span>
             <button className="btn-small btn-secondary" onClick={onLogout}>{t.logout}</button>
           </div>
@@ -172,7 +171,7 @@ export default function Lobby({ user, onGameStart, onLogout }) {
                     <span className={`ready-badge ${p.isReady ? 'is-ready' : 'not-ready'}`}>
                       {p.isReady ? t.ready : t.notReady}
                     </span>
-                    {isHost && p.userId !== user.id && lobbyState.status === 'waiting' && (
+                    {isHost && p.userId !== user.id && (
                       <button
                         className="btn-kick"
                         onClick={() => handleKick(p.userId)}
@@ -209,11 +208,9 @@ export default function Lobby({ user, onGameStart, onLogout }) {
                 </button>
               )}
 
-              {lobbyState.status === 'waiting' && (
-                <button className="btn-secondary" onClick={handleLeave}>
-                  {t.leaveLobby}
-                </button>
-              )}
+              <button className="btn-secondary" onClick={handleLeave}>
+                {t.leaveLobby}
+              </button>
             </>
           )}
         </div>
@@ -225,6 +222,11 @@ export default function Lobby({ user, onGameStart, onLogout }) {
           <p>
             {t.games}: {user.games_played} | {t.wins}: {user.games_won} | {t.totalScore}: {user.total_score}
           </p>
+        </div>
+
+        {/* Leaderboard */}
+        <div className="lobby-footer">
+          <button className="btn-leaderboard" onClick={openLeaderboard}>{t.leaderboard}</button>
         </div>
       </div>
 

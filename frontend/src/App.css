@@ -439,6 +439,11 @@ body {
   font-size: 0.85rem;
 }
 
+.lobby-footer {
+  margin-top: 16px;
+  text-align: center;
+}
+
 /* ---- GAME ---- */
 .game-container {
   min-height: 100vh;
@@ -753,13 +758,13 @@ body {
 }
 
 .btn-kick {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  border: 1px solid rgba(244, 67, 54, 0.4);
-  background: rgba(244, 67, 54, 0.1);
+  border: 2px solid rgba(244, 67, 54, 0.6);
+  background: rgba(244, 67, 54, 0.15);
   color: #f44336;
-  font-size: 0.8rem;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   display: flex;
@@ -768,6 +773,7 @@ body {
   transition: all 0.2s;
   padding: 0;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .btn-kick:hover {
