@@ -2,7 +2,7 @@
   "name": "skyjo-frontend",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://github.com/Atakan-Kaya35/SKYJO",
+  "homepage": "https://atakan-kaya35.github.io/SKYJO",
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
