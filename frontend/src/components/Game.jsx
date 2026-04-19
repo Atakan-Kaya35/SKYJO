@@ -10,6 +10,7 @@ export default function Game({ user, onReturnToLobby }) {
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [cardAnimations, setCardAnimations] = useState({}); // { "row-col": animState }
+  const [drawnCardSelected, setDrawnCardSelected] = useState(false);
 
   const fetchState = useCallback(async () => {
     try {
@@ -30,6 +31,11 @@ export default function Game({ user, onReturnToLobby }) {
     const interval = setInterval(fetchState, 2500);
     return () => clearInterval(interval);
   }, [fetchState]);
+
+  // Reset drawn card selection when turn phase or current player changes
+  useEffect(() => {
+    setDrawnCardSelected(false);
+  }, [gameState?.turnPhase, gameState?.currentTurnUserId]);
 
   if (!gameState) {
     return <div className="game-container"><p>{t.loadingGame}</p></div>;
@@ -133,8 +139,14 @@ export default function Game({ user, onReturnToLobby }) {
       return (row, col, card) => card !== null && !card.revealed;
     }
 
-    if (gameState.turnPhase === 'action' || gameState.turnPhase === 'replace_discard') {
-      // Can replace any card (face up or face down)
+    if (gameState.turnPhase === 'action') {
+      // Must select drawn card first before replacing
+      if (!drawnCardSelected) return null;
+      return (row, col, card) => card !== null;
+    }
+
+    if (gameState.turnPhase === 'replace_discard') {
+      // Must replace a card with the discard pile card
       return (row, col, card) => card !== null;
     }
 
@@ -154,7 +166,7 @@ export default function Game({ user, onReturnToLobby }) {
       return;
     }
 
-    if (gameState.turnPhase === 'action' || gameState.turnPhase === 'replace_discard') {
+    if ((gameState.turnPhase === 'action' && drawnCardSelected) || gameState.turnPhase === 'replace_discard') {
       handleReplace(row, col);
       return;
     }
@@ -207,7 +219,7 @@ export default function Game({ user, onReturnToLobby }) {
   if (gameState.status === 'round_end') {
     const isHost = gameState.hostUserId === user.id;
     const sortedPlayers = [...gameState.players].sort(
-      (a, b) => a.totalGameScore - b.totalGameScore
+      (a, b) => a.roundScore - b.roundScore
     );
     const allReady = gameState.players.every(p => p.isReady);
 
@@ -379,17 +391,32 @@ export default function Game({ user, onReturnToLobby }) {
             )}
           </div>
 
-          {/* Drawn card display */}
-          {isMyTurn && gameState.turnPhase === 'action' && gameState.lastDrawnCard !== null && (
+          {/* Drawn card display - visible to all players */}
+          {gameState.lastDrawnCard !== null && gameState.lastDrawnCard !== undefined &&
+           (gameState.turnPhase === 'action' || gameState.turnPhase === 'replace_discard') && (
             <div className="drawn-card-area">
-              <p className="pile-label">{t.drawnCard}</p>
-              <Card card={{ value: gameState.lastDrawnCard, revealed: true }} highlight />
-              <div className="drawn-actions">
-                <p>{t.replaceOrDiscard}</p>
-                <button className="btn-secondary" onClick={handleDiscardDrawn}>
-                  {t.discardFlip}
-                </button>
-              </div>
+              <p className="pile-label">
+                {isMyTurn ? t.drawnCard : t.playerDrawnCard(currentTurnPlayer?.username)}
+              </p>
+              <Card
+                card={{ value: gameState.lastDrawnCard, revealed: true }}
+                highlight={isMyTurn && (gameState.turnPhase === 'replace_discard' || drawnCardSelected)}
+                onClick={isMyTurn && gameState.turnPhase === 'action' && !drawnCardSelected ? () => setDrawnCardSelected(true) : undefined}
+                clickable={isMyTurn && gameState.turnPhase === 'action' && !drawnCardSelected}
+              />
+              {isMyTurn && gameState.turnPhase === 'action' && (
+                <div className="drawn-actions">
+                  <p>{drawnCardSelected ? t.replaceOrDiscard : t.clickToSelectCard}</p>
+                  <button className="btn-secondary" onClick={handleDiscardDrawn}>
+                    {t.discardFlip}
+                  </button>
+                </div>
+              )}
+              {isMyTurn && gameState.turnPhase === 'replace_discard' && (
+                <div className="drawn-actions">
+                  <p>{t.instrReplaceDiscard}</p>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -400,7 +427,10 @@ export default function Game({ user, onReturnToLobby }) {
             {gameState.turnPhase === 'draw' && (
               <p>👆 {t.instrDraw}</p>
             )}
-            {gameState.turnPhase === 'action' && (
+            {gameState.turnPhase === 'action' && !drawnCardSelected && (
+              <p>👆 {t.instrSelectDrawn}</p>
+            )}
+            {gameState.turnPhase === 'action' && drawnCardSelected && (
               <p>👆 {t.instrAction}</p>
             )}
             {gameState.turnPhase === 'replace_discard' && (

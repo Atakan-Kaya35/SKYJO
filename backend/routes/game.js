@@ -59,11 +59,10 @@ router.get('/state', async (req, res) => {
       };
     });
 
-    // Check if current user has drawn a card (for action phase)
+    // Show drawn card to all players so everyone can see what was picked
     const lastDrawnCard =
       game.current_turn_user_id &&
-      game.current_turn_user_id.toString() === userId &&
-      game.turn_phase === 'action'
+      (game.turn_phase === 'action' || game.turn_phase === 'replace_discard')
         ? game.last_drawn_card
         : null;
 
@@ -603,35 +602,7 @@ async function endRound(game, allPlayers, discardPile) {
     );
   }
 
-  // Re-fetch players with updated scores
-  const [updatedPlayers] = await pool.execute(
-    'SELECT * FROM game_players ORDER BY turn_order ASC'
-  );
-
-  // Find the round ender's score
-  const roundEnder = updatedPlayers.find(
-    p => p.user_id.toString() === (game.round_ender_id || '').toString()
-  );
-
-  // Find minimum score among non-enders
-  let minOtherScore = Infinity;
-  for (const p of updatedPlayers) {
-    if (p.user_id.toString() !== (game.round_ender_id || '').toString()) {
-      if (p.round_score < minOtherScore) minOtherScore = p.round_score;
-    }
-  }
-
-  // If round ender doesn't have the lowest score, double their score
-  let roundEnderDoubled = false;
-  if (roundEnder && roundEnder.round_score >= minOtherScore) {
-    roundEnderDoubled = true;
-    await pool.execute(
-      'UPDATE game_players SET round_score = round_score * 2 WHERE user_id = ?',
-      [roundEnder.user_id]
-    );
-  }
-
-  // Update total game scores and save round scores
+  // Update total game scores
   const [finalPlayers] = await pool.execute(
     'SELECT * FROM game_players ORDER BY turn_order ASC'
   );

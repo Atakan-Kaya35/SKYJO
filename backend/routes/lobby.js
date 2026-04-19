@@ -84,6 +84,9 @@ router.post('/join', async (req, res) => {
       [userId, turnOrder]
     );
 
+    // Touch game_state to track activity for auto-cleanup
+    await pool.execute('UPDATE game_state SET updated_at = NOW() WHERE id = 1');
+
     res.json({ message: 'Joined lobby' });
   } catch (err) {
     console.error('Join error:', err);
@@ -137,6 +140,9 @@ router.post('/leave', async (req, res) => {
       ]);
     }
 
+    // Touch game_state to track activity for auto-cleanup
+    await pool.execute('UPDATE game_state SET updated_at = NOW() WHERE id = 1');
+
     res.json({ message: 'Left lobby' });
   } catch (err) {
     console.error('Leave error:', err);
@@ -156,6 +162,9 @@ router.post('/ready', async (req, res) => {
       'UPDATE game_players SET is_ready = NOT is_ready WHERE user_id = ?',
       [userId]
     );
+
+    // Touch game_state to track activity for auto-cleanup
+    await pool.execute('UPDATE game_state SET updated_at = NOW() WHERE id = 1');
 
     res.json({ message: 'Ready status toggled' });
   } catch (err) {
@@ -320,6 +329,9 @@ router.post('/kick', async (req, res) => {
         players[i].id,
       ]);
     }
+
+    // Touch game_state to track activity for auto-cleanup
+    await pool.execute('UPDATE game_state SET updated_at = NOW() WHERE id = 1');
 
     res.json({ message: 'Player kicked' });
   } catch (err) {
