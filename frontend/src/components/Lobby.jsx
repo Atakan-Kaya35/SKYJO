@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import * as api from '../api';
+import { useLanguage } from '../LanguageContext';
+import LanguageToggle from './LanguageToggle';
 
 export default function Lobby({ user, onGameStart, onLogout }) {
+  const { t } = useLanguage();
   const [lobbyState, setLobbyState] = useState(null);
   const [requiredPlayers, setRequiredPlayers] = useState(2);
   const [error, setError] = useState('');
@@ -38,7 +41,7 @@ export default function Lobby({ user, onGameStart, onLogout }) {
       setJoined(true);
       fetchLobby();
     } catch (err) {
-      setError('Failed to join lobby');
+      setError(t.failedJoin);
     }
   };
 
@@ -48,7 +51,7 @@ export default function Lobby({ user, onGameStart, onLogout }) {
       setJoined(false);
       fetchLobby();
     } catch (err) {
-      setError('Failed to leave lobby');
+      setError(t.failedLeave);
     }
   };
 
@@ -58,7 +61,7 @@ export default function Lobby({ user, onGameStart, onLogout }) {
       await api.toggleReady(user.id);
       fetchLobby();
     } catch (err) {
-      setError('Failed to toggle ready');
+      setError(t.failedReady);
     }
   };
 
@@ -69,7 +72,7 @@ export default function Lobby({ user, onGameStart, onLogout }) {
       await api.setRequiredPlayers(user.id, count);
       fetchLobby();
     } catch (err) {
-      setError('Failed to set player count');
+      setError(t.failedSetPlayers);
     }
   };
 
@@ -83,7 +86,7 @@ export default function Lobby({ user, onGameStart, onLogout }) {
         onGameStart();
       }
     } catch (err) {
-      setError('Failed to start game');
+      setError(t.failedStart);
     }
   };
 
@@ -93,12 +96,12 @@ export default function Lobby({ user, onGameStart, onLogout }) {
       await api.kickPlayer(user.id, targetUserId);
       fetchLobby();
     } catch (err) {
-      setError('Failed to kick player');
+      setError(t.failedKick);
     }
   };
 
   if (!lobbyState) {
-    return <div className="lobby-container"><p>Loading lobby...</p></div>;
+    return <div className="lobby-container"><p>{t.loadingLobby}</p></div>;
   }
 
   const isHost = lobbyState.isHost;
@@ -111,19 +114,20 @@ export default function Lobby({ user, onGameStart, onLogout }) {
     <div className="lobby-container">
       <div className="lobby-card">
         <div className="lobby-header">
-          <h2>🃏 SKYJO Lobby</h2>
+          <h2>🃏 {t.lobby}</h2>
           <div className="user-info">
-            <span>Playing as <strong>{user.username}</strong></span>
-            <button className="btn-small btn-secondary" onClick={onLogout}>Logout</button>
+            <LanguageToggle />
+            <span>{t.playingAs} <strong>{user.username}</strong></span>
+            <button className="btn-small btn-secondary" onClick={onLogout}>{t.logout}</button>
           </div>
         </div>
 
         {/* Host controls */}
         {isHost && (lobbyState.status === 'waiting' || lobbyState.status === 'round_end') && (
           <div className="host-controls">
-            <h3>⭐ You are the Host</h3>
+            <h3>{t.youAreHost}</h3>
             <div className="player-count-control">
-              <label>Players needed to start:</label>
+              <label>{t.playersNeeded}</label>
               <div className="count-buttons">
                 {[2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => (
                   <button
@@ -142,10 +146,10 @@ export default function Lobby({ user, onGameStart, onLogout }) {
         {/* Player list */}
         <div className="player-list">
           <h3>
-            Players ({lobbyState.players.length}/{lobbyState.requiredPlayers})
+            {t.players} ({lobbyState.players.length}/{lobbyState.requiredPlayers})
           </h3>
           {lobbyState.players.length === 0 ? (
-            <p className="empty-msg">No players yet. Join the game!</p>
+            <p className="empty-msg">{t.noPlayers}</p>
           ) : (
             <ul>
               {lobbyState.players.map(p => (
@@ -153,17 +157,17 @@ export default function Lobby({ user, onGameStart, onLogout }) {
                   <span className="player-name">
                     {p.userId === lobbyState.hostUserId && '⭐ '}
                     {p.username}
-                    {p.userId === user.id && ' (you)'}
+                    {p.userId === user.id && ` ${t.you}`}
                   </span>
                   <div className="player-actions">
                     <span className={`ready-badge ${p.isReady ? 'is-ready' : 'not-ready'}`}>
-                      {p.isReady ? '✅ Ready' : '⏳ Not Ready'}
+                      {p.isReady ? t.ready : t.notReady}
                     </span>
                     {isHost && p.userId !== user.id && lobbyState.status === 'waiting' && (
                       <button
                         className="btn-kick"
                         onClick={() => handleKick(p.userId)}
-                        title="Kick player"
+                        title={t.kickTitle}
                       >
                         ✕
                       </button>
@@ -179,7 +183,7 @@ export default function Lobby({ user, onGameStart, onLogout }) {
         <div className="lobby-actions">
           {!isInLobby ? (
             <button className="btn-primary" onClick={handleJoin}>
-              Join Game
+              {t.joinGame}
             </button>
           ) : (
             <>
@@ -187,18 +191,18 @@ export default function Lobby({ user, onGameStart, onLogout }) {
                 className={`btn-primary ${myPlayer?.isReady ? 'btn-unready' : ''}`}
                 onClick={handleReady}
               >
-                {myPlayer?.isReady ? 'Unready' : '✋ Ready Up!'}
+                {myPlayer?.isReady ? t.unready : t.readyUp}
               </button>
 
               {isHost && allReady && (
                 <button className="btn-start" onClick={handleStartGame}>
-                  🚀 Start Game!
+                  {t.startGame}
                 </button>
               )}
 
               {lobbyState.status === 'waiting' && (
                 <button className="btn-secondary" onClick={handleLeave}>
-                  Leave Lobby
+                  {t.leaveLobby}
                 </button>
               )}
             </>
@@ -210,7 +214,7 @@ export default function Lobby({ user, onGameStart, onLogout }) {
         {/* Stats */}
         <div className="user-stats">
           <p>
-            Games: {user.games_played} | Wins: {user.games_won} | Total Score: {user.total_score}
+            {t.games}: {user.games_played} | {t.wins}: {user.games_won} | {t.totalScore}: {user.total_score}
           </p>
         </div>
       </div>

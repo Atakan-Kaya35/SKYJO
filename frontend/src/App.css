@@ -109,6 +109,43 @@ body {
   text-align: center;
 }
 
+/* ---- LANGUAGE TOGGLE ---- */
+.language-toggle {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 4px;
+  z-index: 1000;
+}
+
+.lang-btn {
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #aaa;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.lang-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.lang-active {
+  background: #6c63ff;
+  color: #fff;
+  border-color: #6c63ff;
+}
+
+.lang-active:hover {
+  background: #5a52e0;
+}
+
 /* ---- LOBBY ---- */
 .lobby-container {
   display: flex;

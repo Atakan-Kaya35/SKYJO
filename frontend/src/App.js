@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import { LanguageProvider } from './LanguageContext';
 import Login from './components/Login';
 import Lobby from './components/Lobby';
 import Game from './components/Game';
 
-function App() {
+function AppContent() {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('skyjo_user');
     return saved ? JSON.parse(saved) : null;
@@ -44,6 +45,14 @@ function App() {
       onGameStart={handleGameStart}
       onLogout={handleLogout}
     />
+  );
+}
+
+function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }
 

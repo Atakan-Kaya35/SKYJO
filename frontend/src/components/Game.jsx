@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import * as api from '../api';
+import { useLanguage } from '../LanguageContext';
 import Card from './Card';
 import PlayerGrid from './PlayerGrid';
+import LanguageToggle from './LanguageToggle';
 
 export default function Game({ user, onReturnToLobby }) {
+  const { t } = useLanguage();
   const [gameState, setGameState] = useState(null);
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
@@ -30,7 +33,7 @@ export default function Game({ user, onReturnToLobby }) {
   }, [fetchState]);
 
   if (!gameState) {
-    return <div className="game-container"><p>Loading game...</p></div>;
+    return <div className="game-container"><p>{t.loadingGame}</p></div>;
   }
 
   const myPlayer = gameState.players.find(p => p.userId === user.id);
@@ -66,7 +69,7 @@ export default function Game({ user, onReturnToLobby }) {
       }
       await fetchState();
     } catch (err) {
-      setError('Action failed. Try again.');
+      setError(t.actionFailed);
     } finally {
       setActionLoading(false);
     }
@@ -119,7 +122,7 @@ export default function Game({ user, onReturnToLobby }) {
   };
 
   const handleTerminateGame = () => {
-    if (window.confirm('Are you sure you want to terminate this game? All progress will be lost.')) {
+    if (window.confirm(t.terminateConfirm)) {
       doAction(() => api.terminateGame(user.id));
     }
   };
@@ -169,12 +172,13 @@ export default function Game({ user, onReturnToLobby }) {
   if (gameState.status === 'initial_flip') {
     return (
       <div className="game-container">
+        <LanguageToggle />
         <div className="game-header">
-          <h2>🃏 Initial Card Flip</h2>
+          <h2>{t.initialFlip}</h2>
           <p className="instruction">
             {myPlayer.initialFlipsDone >= 2
-              ? 'Waiting for other players to flip their cards...'
-              : `Flip ${2 - myPlayer.initialFlipsDone} more card(s) to reveal!`}
+              ? t.waitingFlip
+              : t.flipMore(2 - myPlayer.initialFlipsDone)}
           </p>
         </div>
 
@@ -213,12 +217,13 @@ export default function Game({ user, onReturnToLobby }) {
 
     return (
       <div className="game-container">
+        <LanguageToggle />
         <div className="round-end">
-          <h2>📊 Round {gameState.roundNumber} Complete!</h2>
+          <h2>{t.roundComplete(gameState.roundNumber)}</h2>
 
           {gameState.roundEnderId && (
             <p className="round-ender-info">
-              {gameState.players.find(p => p.userId === gameState.roundEnderId)?.username} ended the round
+              {t.endedRound(gameState.players.find(p => p.userId === gameState.roundEnderId)?.username)}
             </p>
           )}
 
@@ -226,10 +231,10 @@ export default function Game({ user, onReturnToLobby }) {
             <table>
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>Player</th>
-                  <th>Round Score</th>
-                  <th>Total Score</th>
+                  <th>{t.rank}</th>
+                  <th>{t.player}</th>
+                  <th>{t.roundScore}</th>
+                  <th>{t.totalScoreHeader}</th>
                 </tr>
               </thead>
               <tbody>
@@ -259,12 +264,12 @@ export default function Game({ user, onReturnToLobby }) {
               className={`btn-primary ${myPlayer?.isReady ? 'btn-unready' : ''}`}
               onClick={handleReady}
             >
-              {myPlayer?.isReady ? 'Unready' : '✋ Ready for Next Round'}
+              {myPlayer?.isReady ? t.unready : t.readyNextRound}
             </button>
 
             {isHost && allReady && (
               <button className="btn-start" onClick={handleStartNextRound}>
-                🚀 Start Next Round!
+                {t.startNextRound}
               </button>
             )}
           </div>
@@ -285,26 +290,27 @@ export default function Game({ user, onReturnToLobby }) {
 
     return (
       <div className="game-container">
+        <LanguageToggle />
         <div className="game-over">
-          <h2>🏆 Game Over!</h2>
+          <h2>{t.gameOver}</h2>
           <p className="winner-text">
-            {winner.username} wins with {winner.totalGameScore} points!
+            {t.winnerText(winner.username, winner.totalGameScore)}
           </p>
 
           <div className="scoreboard">
             <table>
               <thead>
                 <tr>
-                  <th>Rank</th>
-                  <th>Player</th>
-                  <th>Final Score</th>
+                  <th>{t.rankHeader}</th>
+                  <th>{t.player}</th>
+                  <th>{t.finalScore}</th>
                 </tr>
               </thead>
               <tbody>
                 {sortedPlayers.map((p, idx) => (
                   <tr key={p.userId} className={p.userId === user.id ? 'my-row' : ''}>
                     <td>{idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : idx + 1}</td>
-                    <td>{p.username}{p.userId === user.id ? ' (you)' : ''}</td>
+                    <td>{p.username}{p.userId === user.id ? ` ${t.you}` : ''}</td>
                     <td>{p.totalGameScore}</td>
                   </tr>
                 ))}
@@ -315,13 +321,13 @@ export default function Game({ user, onReturnToLobby }) {
           {isHost && (
             <div className="lobby-actions">
               <button className="btn-primary" onClick={handleReturnToLobby}>
-                🔙 Return to Lobby
+                {t.returnToLobby}
               </button>
             </div>
           )}
 
           {!isHost && (
-            <p className="waiting-msg">Waiting for host to return to lobby...</p>
+            <p className="waiting-msg">{t.waitingHost}</p>
           )}
 
           {error && <p className="error">{error}</p>}
@@ -333,18 +339,19 @@ export default function Game({ user, onReturnToLobby }) {
   // ---- Render: Playing Phase ----
   return (
     <div className="game-container">
+      <LanguageToggle />
       <div className="game-header">
-        <h2>🃏 SKYJO — Round {gameState.roundNumber}</h2>
+        <h2>{t.skyjoRound(gameState.roundNumber)}</h2>
         <div className="turn-info">
           {isMyTurn ? (
-            <span className="your-turn">🎯 Your Turn!</span>
+            <span className="your-turn">{t.yourTurn}</span>
           ) : (
             <span className="waiting-turn">
-              Waiting for <strong>{currentTurnPlayer?.username}</strong>...
+              {t.waitingFor(currentTurnPlayer?.username)}
             </span>
           )}
           {gameState.finalTurnsRemaining > 0 && (
-            <span className="final-turns">⚠️ Final turns! ({gameState.finalTurnsRemaining} left)</span>
+            <span className="final-turns">{t.finalTurns(gameState.finalTurnsRemaining)}</span>
           )}
         </div>
       </div>
@@ -353,7 +360,7 @@ export default function Game({ user, onReturnToLobby }) {
         {/* Draw & Discard piles */}
         <div className="piles-area">
           <div className="pile">
-            <p className="pile-label">Draw Pile ({gameState.drawPileCount})</p>
+            <p className="pile-label">{t.drawPile} ({gameState.drawPileCount})</p>
             <div
               className={`card card-hidden ${isMyTurn && gameState.turnPhase === 'draw' ? 'card-clickable' : ''}`}
               onClick={() => isMyTurn && gameState.turnPhase === 'draw' && handleDraw('draw')}
@@ -363,7 +370,7 @@ export default function Game({ user, onReturnToLobby }) {
           </div>
 
           <div className="pile">
-            <p className="pile-label">Discard Pile</p>
+            <p className="pile-label">{t.discardPile}</p>
             {gameState.topDiscard !== null && gameState.topDiscard !== undefined ? (
               <Card
                 card={{ value: gameState.topDiscard, revealed: true }}
@@ -371,19 +378,19 @@ export default function Game({ user, onReturnToLobby }) {
                 clickable={isMyTurn && gameState.turnPhase === 'draw'}
               />
             ) : (
-              <div className="card card-eliminated"><span>Empty</span></div>
+              <div className="card card-eliminated"><span>{t.empty}</span></div>
             )}
           </div>
 
           {/* Drawn card display */}
           {isMyTurn && gameState.turnPhase === 'action' && gameState.lastDrawnCard !== null && (
             <div className="drawn-card-area">
-              <p className="pile-label">Drawn Card</p>
+              <p className="pile-label">{t.drawnCard}</p>
               <Card card={{ value: gameState.lastDrawnCard, revealed: true }} highlight />
               <div className="drawn-actions">
-                <p>Replace a card on your grid, or:</p>
+                <p>{t.replaceOrDiscard}</p>
                 <button className="btn-secondary" onClick={handleDiscardDrawn}>
-                  Discard & Flip Instead
+                  {t.discardFlip}
                 </button>
               </div>
             </div>
@@ -394,16 +401,16 @@ export default function Game({ user, onReturnToLobby }) {
         {isMyTurn && (
           <div className="turn-instructions">
             {gameState.turnPhase === 'draw' && (
-              <p>👆 Click the <strong>Draw Pile</strong> or <strong>Discard Pile</strong> to pick a card</p>
+              <p>👆 {t.instrDraw}</p>
             )}
             {gameState.turnPhase === 'action' && (
-              <p>👆 Click a card on your grid to <strong>replace it</strong>, or <strong>discard</strong> and flip a face-down card</p>
+              <p>👆 {t.instrAction}</p>
             )}
             {gameState.turnPhase === 'replace_discard' && (
-              <p>👆 Click a card on your grid to <strong>replace it</strong> with the discard card</p>
+              <p>👆 {t.instrReplaceDiscard}</p>
             )}
             {gameState.turnPhase === 'flip' && (
-              <p>👆 Click a <strong>face-down card</strong> on your grid to flip it</p>
+              <p>👆 {t.instrFlip}</p>
             )}
           </div>
         )}
@@ -439,7 +446,7 @@ export default function Game({ user, onReturnToLobby }) {
       {isHost && (
         <div className="admin-controls">
           <button className="btn-danger" onClick={handleTerminateGame}>
-            ⛔ Terminate Game
+            {t.terminateGame}
           </button>
         </div>
       )}

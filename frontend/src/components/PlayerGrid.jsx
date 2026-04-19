@@ -1,7 +1,9 @@
 import React from 'react';
 import Card from './Card';
+import { useLanguage } from '../LanguageContext';
 
 export default function PlayerGrid({ player, isCurrentUser, onCardClick, clickableCards, small, cardAnimations }) {
+  const { t } = useLanguage();
   if (!player.cards) return null;
 
   // Show visible score (sum of revealed cards) during gameplay, totalGameScore at round/game end
@@ -12,11 +14,11 @@ export default function PlayerGrid({ player, isCurrentUser, onCardClick, clickab
       <div className="player-grid-header">
         <span className="player-grid-name">
           {player.username}
-          {isCurrentUser && ' (you)'}
+          {isCurrentUser && ` ${t.you}`}
         </span>
         <span className="player-grid-score">
-          Visible: {displayScore}
-          {player.totalGameScore > 0 && ` | Total: ${player.totalGameScore}`}
+          {t.visible}: {displayScore}
+          {player.totalGameScore > 0 && ` | ${t.total}: ${player.totalGameScore}`}
         </span>
       </div>
       <div className="card-grid">

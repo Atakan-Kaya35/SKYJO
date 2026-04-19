@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import * as api from '../api';
+import { useLanguage } from '../LanguageContext';
+import LanguageToggle from './LanguageToggle';
 
 export default function Login({ onLogin }) {
+  const { t } = useLanguage();
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,7 +24,7 @@ export default function Login({ onLogin }) {
         onLogin(data.user);
       }
     } catch (err) {
-      setError('Could not connect to server. Please try again.');
+      setError(t.connectError);
     } finally {
       setLoading(false);
     }
@@ -30,13 +33,14 @@ export default function Login({ onLogin }) {
   return (
     <div className="login-container">
       <div className="login-card">
+        <LanguageToggle />
         <h1 className="game-title">🃏 SKYJO</h1>
-        <p className="game-subtitle">The exciting card game</p>
+        <p className="game-subtitle">{t.subtitle}</p>
 
         <form onSubmit={handleSubmit}>
           <input
             type="text"
-            placeholder="Enter your username"
+            placeholder={t.enterUsername}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             maxLength={50}
@@ -44,14 +48,14 @@ export default function Login({ onLogin }) {
             disabled={loading}
           />
           <button type="submit" disabled={loading || !username.trim()}>
-            {loading ? 'Connecting...' : 'Play'}
+            {loading ? t.connecting : t.play}
           </button>
         </form>
 
         {error && <p className="error">{error}</p>}
 
         <div className="login-stats">
-          <p>No password needed — just pick a username!</p>
+          <p>{t.noPassword}</p>
         </div>
       </div>
     </div>
