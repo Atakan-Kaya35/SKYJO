@@ -7,6 +7,7 @@ export default function Game({ user, onReturnToLobby }) {
   const [gameState, setGameState] = useState(null);
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [cardAnimations, setCardAnimations] = useState({}); // { "row-col": animState }
 
   const fetchState = useCallback(async () => {
     try {
@@ -34,17 +35,35 @@ export default function Game({ user, onReturnToLobby }) {
 
   const myPlayer = gameState.players.find(p => p.userId === user.id);
   const isMyTurn = gameState.currentTurnUserId === user.id;
+  const isHost = gameState.hostUserId === user.id;
   const currentTurnPlayer = gameState.players.find(
     p => p.userId === gameState.currentTurnUserId
   );
 
+  // ---- Trigger animation then clear after delay ----
+  const triggerAnimation = (row, col, animState) => {
+    const key = `${row}-${col}`;
+    setCardAnimations(prev => ({ ...prev, [key]: animState }));
+    setTimeout(() => {
+      setCardAnimations(prev => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+    }, 1600);
+  };
+
   // ---- Action handlers ----
-  const doAction = async (actionFn) => {
+  const doAction = async (actionFn, onResult) => {
     setActionLoading(true);
     setError('');
     try {
       const result = await actionFn();
-      if (result.error) setError(result.error);
+      if (result.error) {
+        setError(result.error);
+      } else if (onResult) {
+        onResult(result);
+      }
       await fetchState();
     } catch (err) {
       setError('Action failed. Try again.');
@@ -54,7 +73,9 @@ export default function Game({ user, onReturnToLobby }) {
   };
 
   const handleInitialFlip = (row, col) => {
-    doAction(() => api.initialFlip(user.id, row, col));
+    doAction(() => api.initialFlip(user.id, row, col), () => {
+      triggerAnimation(row, col, 'flip');
+    });
   };
 
   const handleDraw = (source) => {
@@ -62,7 +83,17 @@ export default function Game({ user, onReturnToLobby }) {
   };
 
   const handleReplace = (row, col) => {
-    doAction(() => api.replaceCard(user.id, row, col));
+    // Get the old card before replacing (it's the current card at this position)
+    const oldCard = myPlayer?.cards?.[row]?.[col];
+    doAction(() => api.replaceCard(user.id, row, col), (result) => {
+      if (result.oldCard) {
+        triggerAnimation(row, col, {
+          type: 'replace',
+          oldValue: result.oldCard.value,
+          newValue: result.newCard.value,
+        });
+      }
+    });
   };
 
   const handleDiscardDrawn = () => {
@@ -70,7 +101,9 @@ export default function Game({ user, onReturnToLobby }) {
   };
 
   const handleFlip = (row, col) => {
-    doAction(() => api.flipCard(user.id, row, col));
+    doAction(() => api.flipCard(user.id, row, col), (result) => {
+      triggerAnimation(row, col, 'flip');
+    });
   };
 
   const handleReady = () => {
@@ -83,6 +116,12 @@ export default function Game({ user, onReturnToLobby }) {
 
   const handleReturnToLobby = () => {
     doAction(() => api.returnToLobby(user.id));
+  };
+
+  const handleTerminateGame = () => {
+    if (window.confirm('Are you sure you want to terminate this game? All progress will be lost.')) {
+      doAction(() => api.terminateGame(user.id));
+    }
   };
 
   // ---- Determine what cards are clickable ----
@@ -146,6 +185,7 @@ export default function Game({ user, onReturnToLobby }) {
               isCurrentUser={true}
               onCardClick={handleCardClick}
               clickableCards={getClickableCards()}
+              cardAnimations={cardAnimations}
             />
           </div>
 
@@ -375,6 +415,7 @@ export default function Game({ user, onReturnToLobby }) {
             isCurrentUser={true}
             onCardClick={handleCardClick}
             clickableCards={getClickableCards()}
+            cardAnimations={cardAnimations}
           />
         </div>
 
@@ -393,6 +434,15 @@ export default function Game({ user, onReturnToLobby }) {
             ))}
         </div>
       </div>
+
+      {/* Host terminate button */}
+      {isHost && (
+        <div className="admin-controls">
+          <button className="btn-danger" onClick={handleTerminateGame}>
+            ⛔ Terminate Game
+          </button>
+        </div>
+      )}
 
       {error && <p className="error">{error}</p>}
     </div>

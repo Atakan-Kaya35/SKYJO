@@ -134,3 +134,21 @@ export async function returnToLobby(userId) {
   });
   return res.json();
 }
+
+// ---- Admin ----
+export async function kickPlayer(userId, targetUserId) {
+  const res = await fetch(`${API_BASE}/api/lobby/kick`, {
+    method: 'POST',
+    headers: getHeaders(userId),
+    body: JSON.stringify({ targetUserId }),
+  });
+  return res.json();
+}
+
+export async function terminateGame(userId) {
+  const res = await fetch(`${API_BASE}/api/lobby/terminate`, {
+    method: 'POST',
+    headers: getHeaders(userId),
+  });
+  return res.json();
+}

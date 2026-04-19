@@ -284,4 +284,92 @@ router.post('/start-game', async (req, res) => {
   }
 });
 
+// POST /api/lobby/kick
+// Header: x-user-id
+// Body: { targetUserId }
+router.post('/kick', async (req, res) => {
+  try {
+    const userId = req.headers['x-user-id'];
+    const { targetUserId } = req.body;
+    if (!userId) return res.status(401).json({ error: 'User ID required' });
+
+    const [gameRows] = await pool.execute('SELECT * FROM game_state WHERE id = 1');
+    const game = gameRows[0];
+
+    if (!game.host_user_id || game.host_user_id.toString() !== userId) {
+      return res.status(403).json({ error: 'Only the host can kick players' });
+    }
+
+    if (game.status !== 'waiting') {
+      return res.status(400).json({ error: 'Can only kick players in lobby' });
+    }
+
+    if (targetUserId.toString() === userId) {
+      return res.status(400).json({ error: 'Cannot kick yourself' });
+    }
+
+    await pool.execute('DELETE FROM game_players WHERE user_id = ?', [targetUserId]);
+
+    // Re-number turn orders
+    const [players] = await pool.execute(
+      'SELECT id FROM game_players ORDER BY turn_order ASC'
+    );
+    for (let i = 0; i < players.length; i++) {
+      await pool.execute('UPDATE game_players SET turn_order = ? WHERE id = ?', [
+        i + 1,
+        players[i].id,
+      ]);
+    }
+
+    res.json({ message: 'Player kicked' });
+  } catch (err) {
+    console.error('Kick error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST /api/lobby/terminate
+// Header: x-user-id
+// Host can terminate a game in progress and return everyone to lobby
+router.post('/terminate', async (req, res) => {
+  try {
+    const userId = req.headers['x-user-id'];
+    if (!userId) return res.status(401).json({ error: 'User ID required' });
+
+    const [gameRows] = await pool.execute('SELECT * FROM game_state WHERE id = 1');
+    const game = gameRows[0];
+
+    if (!game.host_user_id || game.host_user_id.toString() !== userId) {
+      return res.status(403).json({ error: 'Only the host can terminate the game' });
+    }
+
+    // Reset game state back to waiting
+    await pool.execute(
+      `UPDATE game_state SET 
+        status = 'waiting',
+        current_turn_user_id = NULL,
+        turn_phase = NULL,
+        round_number = 0,
+        draw_pile = NULL,
+        discard_pile = NULL,
+        last_drawn_card = NULL,
+        round_ender_id = NULL,
+        final_turns_remaining = -1
+       WHERE id = 1`
+    );
+
+    // Reset players but keep them in lobby
+    await pool.execute(
+      `UPDATE game_players SET 
+        cards = NULL, is_ready = 0, round_score = 0, 
+        total_game_score = 0, all_revealed = 0, initial_flips_done = 0`
+    );
+
+    res.json({ message: 'Game terminated, returned to lobby' });
+  } catch (err) {
+    console.error('Terminate error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;

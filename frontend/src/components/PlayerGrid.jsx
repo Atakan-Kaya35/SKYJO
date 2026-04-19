@@ -1,8 +1,11 @@
 import React from 'react';
 import Card from './Card';
 
-export default function PlayerGrid({ player, isCurrentUser, onCardClick, clickableCards, small }) {
+export default function PlayerGrid({ player, isCurrentUser, onCardClick, clickableCards, small, cardAnimations }) {
   if (!player.cards) return null;
+
+  // Show visible score (sum of revealed cards) during gameplay, totalGameScore at round/game end
+  const displayScore = player.visibleScore !== undefined ? player.visibleScore : player.totalGameScore;
 
   return (
     <div className={`player-grid-container ${small ? 'small' : ''}`}>
@@ -12,8 +15,8 @@ export default function PlayerGrid({ player, isCurrentUser, onCardClick, clickab
           {isCurrentUser && ' (you)'}
         </span>
         <span className="player-grid-score">
-          Score: {player.totalGameScore}
-          {player.roundScore > 0 && ` (+${player.roundScore})`}
+          Visible: {displayScore}
+          {player.totalGameScore > 0 && ` | Total: ${player.totalGameScore}`}
         </span>
       </div>
       <div className="card-grid">
@@ -22,6 +25,8 @@ export default function PlayerGrid({ player, isCurrentUser, onCardClick, clickab
             {row.map((card, colIdx) => {
               const isClickable = clickableCards && isCurrentUser &&
                 clickableCards(rowIdx, colIdx, card);
+              const animKey = `${rowIdx}-${colIdx}`;
+              const animState = cardAnimations ? cardAnimations[animKey] : null;
               return (
                 <Card
                   key={colIdx}
@@ -29,6 +34,7 @@ export default function PlayerGrid({ player, isCurrentUser, onCardClick, clickab
                   onClick={() => onCardClick && onCardClick(rowIdx, colIdx)}
                   clickable={isClickable}
                   small={small}
+                  animState={animState}
                 />
               );
             })}

@@ -87,6 +87,16 @@ export default function Lobby({ user, onGameStart, onLogout }) {
     }
   };
 
+  const handleKick = async (targetUserId) => {
+    try {
+      setError('');
+      await api.kickPlayer(user.id, targetUserId);
+      fetchLobby();
+    } catch (err) {
+      setError('Failed to kick player');
+    }
+  };
+
   if (!lobbyState) {
     return <div className="lobby-container"><p>Loading lobby...</p></div>;
   }
@@ -145,9 +155,20 @@ export default function Lobby({ user, onGameStart, onLogout }) {
                     {p.username}
                     {p.userId === user.id && ' (you)'}
                   </span>
-                  <span className={`ready-badge ${p.isReady ? 'is-ready' : 'not-ready'}`}>
-                    {p.isReady ? '✅ Ready' : '⏳ Not Ready'}
-                  </span>
+                  <div className="player-actions">
+                    <span className={`ready-badge ${p.isReady ? 'is-ready' : 'not-ready'}`}>
+                      {p.isReady ? '✅ Ready' : '⏳ Not Ready'}
+                    </span>
+                    {isHost && p.userId !== user.id && lobbyState.status === 'waiting' && (
+                      <button
+                        className="btn-kick"
+                        onClick={() => handleKick(p.userId)}
+                        title="Kick player"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>

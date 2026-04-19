@@ -30,6 +30,16 @@ router.get('/state', async (req, res) => {
       const cards = p.cards ? JSON.parse(p.cards) : null;
       const isCurrentUser = p.user_id.toString() === userId;
 
+      // Calculate live visible score (sum of revealed cards)
+      let visibleScore = 0;
+      if (cards) {
+        for (const row of cards) {
+          for (const card of row) {
+            if (card && card.revealed) visibleScore += card.value;
+          }
+        }
+      }
+
       return {
         userId: p.user_id,
         username: p.username,
@@ -37,6 +47,7 @@ router.get('/state', async (req, res) => {
         isReady: !!p.is_ready,
         roundScore: p.round_score,
         totalGameScore: p.total_game_score,
+        visibleScore,
         allRevealed: !!p.all_revealed,
         initialFlipsDone: p.initial_flips_done,
         // Show own cards fully, opponent cards filtered
@@ -327,7 +338,13 @@ router.post('/replace', async (req, res) => {
     // Advance turn
     await advanceTurn(game, userId, allRevealed, discardPile);
 
-    res.json({ message: 'Card replaced' });
+    res.json({
+      message: 'Card replaced',
+      oldCard: { value: oldCard.value, wasRevealed: oldCard.revealed },
+      newCard: { value: drawnCard },
+      row,
+      col,
+    });
   } catch (err) {
     console.error('Replace error:', err);
     res.status(500).json({ error: 'Server error' });
@@ -420,6 +437,7 @@ router.post('/flip', async (req, res) => {
       return res.status(400).json({ error: 'Must flip a face-down card' });
     }
 
+    const flippedValue = cards[row][col].value;
     cards[row][col].revealed = true;
 
     // Check for column elimination
@@ -436,7 +454,7 @@ router.post('/flip', async (req, res) => {
     const discardPile = JSON.parse(game.discard_pile);
     await advanceTurn(game, userId, allRevealed, discardPile);
 
-    res.json({ message: 'Card flipped' });
+    res.json({ message: 'Card flipped', flippedCard: { value: flippedValue }, row, col });
   } catch (err) {
     console.error('Flip error:', err);
     res.status(500).json({ error: 'Server error' });
