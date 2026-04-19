@@ -110,7 +110,7 @@ const translations = {
     ready: '✅ Hazır',
     notReady: '⏳ Hazır Değil',
     joinGame: 'Oyuna Katıl',
-    readyUp: '✋ Hazırlan!',
+    readyUp: '✋ Hazırım!',
     unready: 'Hazır Değil',
     startGame: '🚀 Oyunu Başlat!',
     leaveLobby: 'Lobiden Ayrıl',

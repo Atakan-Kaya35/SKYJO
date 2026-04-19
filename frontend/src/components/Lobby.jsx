@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import * as api from '../api';
 import { useLanguage } from '../LanguageContext';
-import LanguageToggle from './LanguageToggle';
 
 export default function Lobby({ user, onGameStart, onLogout }) {
   const { t } = useLanguage();
@@ -127,7 +126,6 @@ export default function Lobby({ user, onGameStart, onLogout }) {
           <h2>🃏 {t.lobby}</h2>
           <div className="user-info">
             <button className="btn-leaderboard" onClick={openLeaderboard}>{t.leaderboard}</button>
-            <LanguageToggle />
             <span>{t.playingAs} <strong>{user.username}</strong></span>
             <button className="btn-small btn-secondary" onClick={onLogout}>{t.logout}</button>
           </div>

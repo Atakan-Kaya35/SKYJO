@@ -664,7 +664,7 @@ async function endRound(game, allPlayers, discardPile) {
           games_played = games_played + 1,
           games_won = games_won + ?
          WHERE id = ?`,
-        [p.total_game_score + p.round_score, isWinner ? 1 : 0, p.user_id]
+        [p.total_game_score, isWinner ? 1 : 0, p.user_id]
       );
     }
 
