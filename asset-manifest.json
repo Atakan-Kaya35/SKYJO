@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/SKYJO/static/css/main.cd88ad6a.css",
-    "main.js": "/SKYJO/static/js/main.1c3f0710.js",
+    "main.js": "/SKYJO/static/js/main.e8de008b.js",
     "index.html": "/SKYJO/index.html",
     "main.cd88ad6a.css.map": "/SKYJO/static/css/main.cd88ad6a.css.map",
-    "main.1c3f0710.js.map": "/SKYJO/static/js/main.1c3f0710.js.map"
+    "main.e8de008b.js.map": "/SKYJO/static/js/main.e8de008b.js.map"
   },
   "entrypoints": [
     "static/css/main.cd88ad6a.css",
-    "static/js/main.1c3f0710.js"
+    "static/js/main.e8de008b.js"
   ]
 }
