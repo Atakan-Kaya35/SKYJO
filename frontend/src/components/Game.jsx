@@ -61,14 +61,12 @@ export default function Game({ user, onReturnToLobby }) {
     setError('');
     try {
       const result = await actionFn();
-      if (result.error) {
-        setError(result.error);
-      } else if (onResult) {
+      if (onResult) {
         onResult(result);
       }
       await fetchState();
     } catch (err) {
-      setError(t.actionFailed);
+      setError(err.message || t.actionFailed);
     } finally {
       setActionLoading(false);
     }

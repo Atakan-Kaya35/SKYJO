@@ -42,17 +42,18 @@ export default function Lobby({ user, onGameStart, onLogout }) {
       setJoined(true);
       fetchLobby();
     } catch (err) {
-      setError(t.failedJoin);
+      setError(err.message || t.failedJoin);
     }
   };
 
   const handleLeave = async () => {
     try {
+      setError('');
       await api.leaveLobby(user.id);
       setJoined(false);
       fetchLobby();
     } catch (err) {
-      setError(t.failedLeave);
+      setError(err.message || t.failedLeave);
     }
   };
 
@@ -62,7 +63,7 @@ export default function Lobby({ user, onGameStart, onLogout }) {
       await api.toggleReady(user.id);
       fetchLobby();
     } catch (err) {
-      setError(t.failedReady);
+      setError(err.message || t.failedReady);
     }
   };
 
@@ -73,21 +74,17 @@ export default function Lobby({ user, onGameStart, onLogout }) {
       await api.setRequiredPlayers(user.id, count);
       fetchLobby();
     } catch (err) {
-      setError(t.failedSetPlayers);
+      setError(err.message || t.failedSetPlayers);
     }
   };
 
   const handleStartGame = async () => {
     try {
       setError('');
-      const result = await api.startGame(user.id);
-      if (result.error) {
-        setError(result.error);
-      } else {
-        onGameStart();
-      }
+      await api.startGame(user.id);
+      onGameStart();
     } catch (err) {
-      setError(t.failedStart);
+      setError(err.message || t.failedStart);
     }
   };
 
@@ -97,7 +94,7 @@ export default function Lobby({ user, onGameStart, onLogout }) {
       await api.kickPlayer(user.id, targetUserId);
       fetchLobby();
     } catch (err) {
-      setError(t.failedKick);
+      setError(err.message || t.failedKick);
     }
   };
 

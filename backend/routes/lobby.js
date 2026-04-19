@@ -101,8 +101,8 @@ router.post('/leave', async (req, res) => {
     const [gameRows] = await pool.execute('SELECT * FROM game_state WHERE id = 1');
     const game = gameRows[0];
 
-    // Only allow leaving during waiting
-    if (game.status !== 'waiting') {
+    // Only allow leaving during waiting, round_end, or game_over
+    if (game.status !== 'waiting' && game.status !== 'round_end' && game.status !== 'game_over') {
       return res.status(400).json({ error: 'Cannot leave during a game' });
     }
 

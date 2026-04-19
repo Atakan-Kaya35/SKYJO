@@ -11,6 +11,14 @@ function getHeaders(userId) {
   return headers;
 }
 
+async function handleResponse(res) {
+  const data = await res.json();
+  if (!res.ok || data.error) {
+    throw new Error(data.error || `Request failed (${res.status})`);
+  }
+  return data;
+}
+
 // ---- Auth ----
 export async function login(username) {
   const res = await fetch(`${API_BASE}/api/auth/login`, {
@@ -18,12 +26,12 @@ export async function login(username) {
     headers: getHeaders(),
     body: JSON.stringify({ username }),
   });
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function getLeaderboard() {
   const res = await fetch(`${API_BASE}/api/auth/leaderboard`);
-  return res.json();
+  return handleResponse(res);
 }
 
 // ---- Lobby ----
@@ -31,7 +39,7 @@ export async function getLobbyState(userId) {
   const res = await fetch(`${API_BASE}/api/lobby/state`, {
     headers: getHeaders(userId),
   });
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function joinLobby(userId) {
@@ -39,7 +47,7 @@ export async function joinLobby(userId) {
     method: 'POST',
     headers: getHeaders(userId),
   });
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function leaveLobby(userId) {
@@ -47,7 +55,7 @@ export async function leaveLobby(userId) {
     method: 'POST',
     headers: getHeaders(userId),
   });
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function toggleReady(userId) {
@@ -55,7 +63,7 @@ export async function toggleReady(userId) {
     method: 'POST',
     headers: getHeaders(userId),
   });
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function setRequiredPlayers(userId, requiredPlayers) {
@@ -64,7 +72,7 @@ export async function setRequiredPlayers(userId, requiredPlayers) {
     headers: getHeaders(userId),
     body: JSON.stringify({ requiredPlayers }),
   });
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function startGame(userId) {
@@ -72,7 +80,7 @@ export async function startGame(userId) {
     method: 'POST',
     headers: getHeaders(userId),
   });
-  return res.json();
+  return handleResponse(res);
 }
 
 // ---- Game ----
@@ -80,7 +88,7 @@ export async function getGameState(userId) {
   const res = await fetch(`${API_BASE}/api/game/state`, {
     headers: getHeaders(userId),
   });
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function initialFlip(userId, row, col) {
@@ -89,7 +97,7 @@ export async function initialFlip(userId, row, col) {
     headers: getHeaders(userId),
     body: JSON.stringify({ row, col }),
   });
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function drawCard(userId, source) {
@@ -98,7 +106,7 @@ export async function drawCard(userId, source) {
     headers: getHeaders(userId),
     body: JSON.stringify({ source }),
   });
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function replaceCard(userId, row, col) {
@@ -107,7 +115,7 @@ export async function replaceCard(userId, row, col) {
     headers: getHeaders(userId),
     body: JSON.stringify({ row, col }),
   });
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function discardDrawn(userId) {
@@ -115,7 +123,7 @@ export async function discardDrawn(userId) {
     method: 'POST',
     headers: getHeaders(userId),
   });
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function flipCard(userId, row, col) {
@@ -124,7 +132,7 @@ export async function flipCard(userId, row, col) {
     headers: getHeaders(userId),
     body: JSON.stringify({ row, col }),
   });
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function returnToLobby(userId) {
@@ -132,7 +140,7 @@ export async function returnToLobby(userId) {
     method: 'POST',
     headers: getHeaders(userId),
   });
-  return res.json();
+  return handleResponse(res);
 }
 
 // ---- Admin ----
@@ -142,7 +150,7 @@ export async function kickPlayer(userId, targetUserId) {
     headers: getHeaders(userId),
     body: JSON.stringify({ targetUserId }),
   });
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function terminateGame(userId) {
@@ -150,5 +158,5 @@ export async function terminateGame(userId) {
     method: 'POST',
     headers: getHeaders(userId),
   });
-  return res.json();
+  return handleResponse(res);
 }
