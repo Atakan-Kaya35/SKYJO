@@ -300,7 +300,7 @@ router.post('/kick', async (req, res) => {
       return res.status(403).json({ error: 'Only the host can kick players' });
     }
 
-    if (game.status !== 'waiting') {
+    if (game.status !== 'waiting' && game.status !== 'round_end' && game.status !== 'game_over') {
       return res.status(400).json({ error: 'Can only kick players in lobby' });
     }
 
