@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/Atakan-Kaya35/SKYJO/static/css/main.11933eaf.css",
-    "main.js": "/Atakan-Kaya35/SKYJO/static/js/main.8698dc2f.js",
-    "index.html": "/Atakan-Kaya35/SKYJO/index.html",
-    "main.11933eaf.css.map": "/Atakan-Kaya35/SKYJO/static/css/main.11933eaf.css.map",
-    "main.8698dc2f.js.map": "/Atakan-Kaya35/SKYJO/static/js/main.8698dc2f.js.map"
+    "main.css": "/SKYJO/static/css/main.11933eaf.css",
+    "main.js": "/SKYJO/static/js/main.ca26db88.js",
+    "index.html": "/SKYJO/index.html",
+    "main.11933eaf.css.map": "/SKYJO/static/css/main.11933eaf.css.map",
+    "main.ca26db88.js.map": "/SKYJO/static/js/main.ca26db88.js.map"
   },
   "entrypoints": [
     "static/css/main.11933eaf.css",
-    "static/js/main.8698dc2f.js"
+    "static/js/main.ca26db88.js"
   ]
 }
