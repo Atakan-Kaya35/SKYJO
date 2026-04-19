@@ -3,7 +3,7 @@
 // ============================================================
 
 // IMPORTANT: Change this to your Render.com service URL after deploying
-const API_BASE = process.env.REACT_APP_API_URL || 'https://skyjo-x831.onrender.com/';
+const API_BASE = process.env.REACT_APP_API_URL || 'https://skyjo-x831.onrender.com';
 
 function getHeaders(userId) {
   const headers = { 'Content-Type': 'application/json' };
