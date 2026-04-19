@@ -77,6 +77,14 @@ const translations = {
     visible: 'Visible',
     total: 'Total',
 
+    // Leaderboard
+    leaderboard: '🏅 Leaderboard',
+    lbWins: 'Wins',
+    lbPlayed: 'Played',
+    lbScore: 'Score',
+    lbNoData: 'No data yet',
+    close: 'Close',
+
     // Language
     language: 'Language',
   },
@@ -158,6 +166,14 @@ const translations = {
     // PlayerGrid
     visible: 'Görünen',
     total: 'Toplam',
+
+    // Leaderboard
+    leaderboard: '🏅 Skor Tablosu',
+    lbWins: 'Galibiyet',
+    lbPlayed: 'Oynanmış',
+    lbScore: 'Puan',
+    lbNoData: 'Henüz veri yok',
+    close: 'Kapat',
 
     // Language
     language: 'Dil',

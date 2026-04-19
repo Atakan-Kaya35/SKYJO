@@ -111,12 +111,8 @@ body {
 
 /* ---- LANGUAGE TOGGLE ---- */
 .language-toggle {
-  position: fixed;
-  top: 12px;
-  right: 12px;
-  display: flex;
+  display: inline-flex;
   gap: 4px;
-  z-index: 1000;
 }
 
 .lang-btn {
@@ -144,6 +140,90 @@ body {
 
 .lang-active:hover {
   background: #5a52e0;
+}
+
+/* ---- TOP BAR (language + leaderboard) ---- */
+.top-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding: 0 0 10px;
+}
+
+.btn-leaderboard {
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ccc;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-leaderboard:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+/* ---- LEADERBOARD MODAL ---- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #1a1740 0%, #2d2760 100%);
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-content h2 {
+  text-align: center;
+  margin-bottom: 16px;
+  color: #fff;
+}
+
+.modal-content table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.modal-content th,
+.modal-content td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modal-content th {
+  color: #aaa;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.modal-content td {
+  color: #e0e0e0;
+}
+
+.modal-content .btn-secondary {
+  display: block;
+  margin: 18px auto 0;
+  padding: 10px 30px;
 }
 
 /* ---- LOBBY ---- */

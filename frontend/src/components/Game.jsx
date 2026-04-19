@@ -172,7 +172,9 @@ export default function Game({ user, onReturnToLobby }) {
   if (gameState.status === 'initial_flip') {
     return (
       <div className="game-container">
-        <LanguageToggle />
+        <div className="top-bar">
+          <LanguageToggle />
+        </div>
         <div className="game-header">
           <h2>{t.initialFlip}</h2>
           <p className="instruction">
@@ -217,7 +219,9 @@ export default function Game({ user, onReturnToLobby }) {
 
     return (
       <div className="game-container">
-        <LanguageToggle />
+        <div className="top-bar">
+          <LanguageToggle />
+        </div>
         <div className="round-end">
           <h2>{t.roundComplete(gameState.roundNumber)}</h2>
 
@@ -290,7 +294,9 @@ export default function Game({ user, onReturnToLobby }) {
 
     return (
       <div className="game-container">
-        <LanguageToggle />
+        <div className="top-bar">
+          <LanguageToggle />
+        </div>
         <div className="game-over">
           <h2>{t.gameOver}</h2>
           <p className="winner-text">
@@ -327,7 +333,11 @@ export default function Game({ user, onReturnToLobby }) {
           )}
 
           {!isHost && (
-            <p className="waiting-msg">{t.waitingHost}</p>
+            <div className="lobby-actions">
+              <button className="btn-primary" onClick={onReturnToLobby}>
+                {t.returnToLobby}
+              </button>
+            </div>
           )}
 
           {error && <p className="error">{error}</p>}
@@ -339,7 +349,9 @@ export default function Game({ user, onReturnToLobby }) {
   // ---- Render: Playing Phase ----
   return (
     <div className="game-container">
-      <LanguageToggle />
+      <div className="top-bar">
+        <LanguageToggle />
+      </div>
       <div className="game-header">
         <h2>{t.skyjoRound(gameState.roundNumber)}</h2>
         <div className="turn-info">
